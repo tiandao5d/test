@@ -1,0 +1,102 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn
+
+PATH: 
+  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  8.15.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/antd/-/antd-4.0.3.tgz: unexpected end of file
+      at Gunzip.zlibOnError (zlib.js:153:15)
+
+npm manifest: 
+  {
+    "name": "test",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "@babel/core": "^7.7.2",
+      "@babel/plugin-transform-runtime": "^7.6.2",
+      "@babel/polyfill": "^7.7.0",
+      "@babel/preset-env": "^7.7.1",
+      "@babel/preset-react": "^7.8.3",
+      "babel-loader": "^8.0.6",
+      "bulk-require": "^1.0.1",
+      "clean-webpack-plugin": "^3.0.0",
+      "css-loader": "^3.2.0",
+      "extract-text-webpack-plugin": "^4.0.0-beta.0",
+      "file-loader": "^4.3.0",
+      "html-minifier": "^4.0.0",
+      "html-webpack-plugin": "^3.2.0",
+      "less": "^3.10.3",
+      "less-loader": "^5.0.0",
+      "mini-css-extract-plugin": "^0.8.2",
+      "ng-annotate": "^1.2.2",
+      "ng-annotate-loader": "^0.6.1",
+      "ng-annotate-webpack-plugin": "^0.3.0",
+      "optimize-css-assets-webpack-plugin": "^5.0.3",
+      "postcss-loader": "^3.0.0",
+      "style-loader": "^1.0.0",
+      "terser-webpack-plugin": "^2.3.1",
+      "uglify-js": "^3.7.3",
+      "url-loader": "^2.3.0",
+      "webpack": "^4.41.2",
+      "webpack-cli": "^3.3.10",
+      "webpack-dev-server": "^3.9.0",
+      "webpack-merge": "^4.2.2"
+    },
+    "dependencies": {
+      "angular": "1.5.0",
+      "angular-animate": "1.5.8",
+      "angular-aria": "1.5.8",
+      "angular-bootstrap-colorpicker": "3.0.32",
+      "angular-bootstrap-lightbox": "0.12.0",
+      "angular-loading-bar": "0.9.0",
+      "angular-sanitize": "1.5.8",
+      "angular-ui-bootstrap": "2.2.0",
+      "angular-ui-notification": "0.2.0",
+      "angular-ui-router": "0.3.2",
+      "animate.css": "3.5.2",
+      "antd": "^4.0.2",
+      "babyparse": "0.4.6",
+      "bootstrap": "3.3.7",
+      "chart.js": "2.7.1",
+      "chartjs-plugin-datalabels": "^0.7.0",
+      "core-js": "^3.4.2",
+      "d3": "3.5.17",
+      "d3-tip": "0.6.7",
+      "filesaver.js-npm": "1.0.1",
+      "font-awesome": "4.7.0",
+      "html2canvas": "^1.0.0-alpha.12",
+      "jquery": "3.2.1",
+      "jszip": "^3.2.0",
+      "lodash": "^4.17.15",
+      "ng-infinite-scroll": "1.3.0",
+      "openlayers": "4.6.4",
+      "react": "^16.13.0",
+      "react-dom": "^16.13.0",
+      "redux": "^4.0.5",
+      "sortablejs": "1.7.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
