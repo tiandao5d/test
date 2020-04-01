@@ -6,6 +6,13 @@
     <title>Document</title>
 </head>
 <body>
+    <div ng-app="myApp" ng-controller="myCtrl">
+        名字: {{obj.name}}
+        <div></div>
+        <button ng-click="setName()">改变name</button>
+        <div></div>
+        <button ng-click="setReactNum()">改变react的数字</button>
+    </div>
     <div id="root"></div>
 </body>
 </html>

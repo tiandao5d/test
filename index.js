@@ -1,10 +1,9 @@
-let React = require('react');
-let ReactDOM = require('react-dom');
-let Component = React.Component;
-
-// import React, { Component } from 'react';
-// import ReactDOM from 'react-dom';
-
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import angular from 'angular';
+function Hob() {
+    return <div>Hob中文说明，函数组件</div>
+}
 class Home extends Component {
     constructor() {
         super();
@@ -18,29 +17,52 @@ class Home extends Component {
     render() {
         return (
             <div>
-                <div>抬头</div>
+                <p></p>
+                <p></p>
+                <p></p>
+                <Hob />
+                <p></p>
+                <p></p>
+                <p></p>
+                <div onClick={this.props.setName}>改变ng的name</div>
                 <div onClick={this.bclick.bind(this)}>内容{this.state.num}</div>
             </div>
         )
     }
 }
-
+// console.log(11)
 function getHome(props) {
     let div = document.createElement('div');
     // let a = ReactDOM.render(<div>33333</div>, div);
     let a = ReactDOM.render(React.createElement(Home, props), div);
-    console.log(div)
     a.reactToNgEle = div;
     return a;
 }
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function ($scope) {
+    $scope.obj = { name: "John Doe" };
+    $scope.setName = function () {
+        $scope.obj.name += 1;
+        $scope.safeApply();
+    }
+    $scope.setReactNum = function () {
+        rcls.bclick();
+    }
+    $scope.safeApply = function (fn) {
+        var phase = this.$root.$$phase;
+        if (phase == '$apply' || phase == '$digest') {
+            if (fn && (typeof (fn) === 'function')) {
+                fn();
+            }
+        } else {
+            this.$apply(fn);
+        }
+    };
 
-ReactDOM.render(<Home />, document.getElementById('root'));
-// // module.exports = {getHome};
-// // export default getHome;
+    let rcls = getHome({
+        setName: $scope.setName
+    })
+    document.getElementById('root').appendChild(rcls.reactToNgEle);
+});
 
-
-// let a = () => {
-//     return 123
-// }
-
-// document.getElementById('root').innerHTML = a();
+// ReactDOM.render(<Home />, document.getElementById('root'));
