@@ -33,7 +33,7 @@ module.exports = {
                 }]
             },
             {
-                test: /\.js$/,
+                test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: [
                     {
@@ -41,6 +41,15 @@ module.exports = {
                         options: {
                             presets: ['@babel/preset-env', '@babel/preset-react']
                         }
+                    }
+                ]
+            },
+            {
+                test: /abc\.html$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: './htmlloader.js'
                     }
                 ]
             },
