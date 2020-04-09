@@ -34,7 +34,8 @@ class Home extends Component {
 function getHome(props) {
     let div = document.createElement('div');
     // let a = ReactDOM.render(<div>33333</div>, div);
-    let a = ReactDOM.render(React.createElement(Home, props), div);
+    let a = ReactDOM.render(<Home {...props}/>, div) || {};
+    console.log(a)
     a.reactToNgEle = div;
     return a;
 }
