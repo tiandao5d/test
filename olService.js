@@ -7,6 +7,7 @@ const Feature = ol.Feature;
 const SourceXYZ = ol.source.XYZ;
 const SourceVector = ol.source.Vector;
 
+const LayerHeatmap = ol.layer.Heatmap;
 const LayerGroup = ol.layer.Group;
 const LayerTile = ol.layer.Tile;
 const LayerVector = ol.layer.Vector;
@@ -15,13 +16,14 @@ const Point = ol.geom.Point;
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
 const Text = ol.style.Text;
+const Stroke = ol.style.Stroke;
 
 export function fromLonLat(point) {
     return ol.proj.fromLonLat(point)
 }
 
 // 图层组
-class MapLayerGroup {
+export class MapLayerGroup {
     constructor() {
         this.group = new LayerGroup();
     }
@@ -44,7 +46,7 @@ class MapLayerGroup {
 }
 
 // 底图图层
-class MapLayerBaseMap extends MapLayerGroup {
+export class MapLayerBasemap extends MapLayerGroup {
     constructor() {
         super();
         this.oriItems = this.getOriItems();
@@ -80,15 +82,12 @@ class MapLayerBaseMap extends MapLayerGroup {
         })
     }
 }
-let mapLayerBaseMapCls = new MapLayerBaseMap();
+export let mapLayerBasemapCls = new MapLayerBasemap();
 
-// 数据点图层
-class MapLayerPoint {
+export class MapLayerHeatmap{
     constructor(options = {}) {
-        this.styleKey = 'f_style'; // 用于feature存储样式数据
         this.dataKey = 'f_data'; // 用于feature存储额外数据
         this.layer = this.createLayer();
-        console.log(this)
         if ( options.features ) {
             this.setFeatures(options.features);
         }
@@ -98,22 +97,11 @@ class MapLayerPoint {
     }
     // 创建一个图层
     createLayer() {
-        let styleKey = this.styleKey;
-        let layer = new LayerVector({
-            style(feature){
-                let styles = feature.get(styleKey);
-                styles = styles.map(o => {
-                    return new Style({
-                        text: new Text({
-                            text: o.text,
-                            font: o.font,
-                            fill: new Fill({
-                                color: o.color
-                            })
-                        })
-                    })
-                });
-                return styles;
+        let layer = new LayerHeatmap({
+            blur: 15,
+            radius: 10,
+            weight: function(feature) {
+              return Math.random();
             }
         });
         return layer;
@@ -153,35 +141,108 @@ class MapLayerPoint {
     }
 }
 
-    
-let features = [
-    {
-        point: [106, 36],
-        style: [
-            {
-                color: '#f00',
-                font: '50px arial',
-                text: '\u25cf'
-            },
-            {
-                color: '#fff',
-                font: '12px arial',
-                text: '11'
-            }
-        ],
-        data: { // 给当前feature添加一些标识数据
-            id: '123'
+// 数据点图层
+export class MapLayerPoint {
+    constructor(options = {}) {
+        this.styleKey = 'f_style'; // 用于feature存储样式数据
+        this.dataKey = 'f_data'; // 用于feature存储额外数据
+        this.titleKey = 'f_title'; // 说明字段
+        this.layer = this.createLayer();
+        console.log(this)
+        if ( options.features ) {
+            this.setFeatures(options.features);
         }
     }
-]
-let mapLayerPointCls = new MapLayerPoint({features});
+    clear(){
+        this.setFeatures([]);
+    }
+    createStyle(style) {
+        return new Style({
+            text: new Text({
+                text: style.text,
+                font: style.font,
+                fill: new Fill({
+                    color: style.color
+                }),
+                stroke: (style.stroke ? new Stroke({
+                    color: style.stroke.color,
+                    width: style.stroke.width || 1
+                }) : null)
+            })
+        })
+    }
+    // 创建一个图层
+    createLayer() {
+        let styleKey = this.styleKey;
+        let titleKey = this.titleKey;
+        let createStyle = this.createStyle;
+        let layer = new LayerVector({
+            style(feature){
+                let styles = feature.get(styleKey);
+                let title = feature.get(titleKey);
+                styles = styles.map(o => {
+                    return createStyle(o);
+                });
+                if ( title ) {
+                    styles.push(new Style({
+                        text: new Text({
+                            offsetY: 30,
+                            text: title,
+                            fill: new Fill({
+                                color: '#000'
+                            })
+                        })
+                    }))
+                }
+                return styles;
+            }
+        });
+        return layer;
+    }
+    // 添加数据点
+    // 参数为数据点的集合，例如
+    // [
+    //     {
+    //         point: [105, 35],
+    //         style: [
+    //             {
+    //                 color: '#f00',
+    //                 font: '30px arial',
+    //                 text: '\u25cf'
+    //             }
+    //         ],
+    //         data: { // 给当前feature添加一些标识数据
+    //             id: '123'
+    //         }
+    //     }
+    // ]
+    setFeatures(features) {
+        let olFeatures = features.map(o => {
+            let ft = new Feature({
+                geometry: new Point(fromLonLat(o.point))
+            });
+            ft.set(this.styleKey, o.style);
+            if ( o.data ) {
+                ft.set(this.dataKey, o.data)
+            }
+            if ( o.title ) {
+                ft.set(this.titleKey, o.title);
+            }
+            return ft;
+        });
+        let source = new SourceVector({
+            features: olFeatures
+        });
+        this.layer.setSource(source);
+    }
+}
+
 
 export function createMap(target) {
     const map = new Map({
         target,
         layers: [
-            mapLayerBaseMapCls.group,
-            mapLayerPointCls.layer
+            mapLayerBasemapCls.group
         ],
         view: new View({
             center: fromLonLat([104.41, 35.82]),
@@ -189,10 +250,13 @@ export function createMap(target) {
         })
     });
     map.on("singleclick", function (evt) {
+        console.log(evt)
+        let arr = [];
         map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-            console.log(feature.get('f_data'))
+            arr.push(feature.get('f_data'));
             // layerTileGroupCls.group.setLayers(new Collection())
-        })
+        });
+        console.log(arr);
     })
     return map;
 }

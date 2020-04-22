@@ -94,7 +94,7 @@ module.exports = {
         contentBase: './dist',
         hot: true,
         port: 9091,
-        host: '0.0.0.0',
+        // host: '0.0.0.0',
         noInfo: true,
         open: true
     },
