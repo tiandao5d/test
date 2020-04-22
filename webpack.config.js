@@ -2,8 +2,10 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 module.exports = {
     entry: {
+        // main: './index.tsx'
         main: './index.js'
     },
     output: {
@@ -45,6 +47,15 @@ module.exports = {
                 ]
             },
             {
+                test: /\.tsx$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'awesome-typescript-loader'
+                    }
+                ]
+            },
+            {
                 test: /abc\.html$/,
                 exclude: /node_modules/,
                 use: [
@@ -52,6 +63,10 @@ module.exports = {
                         loader: './htmlloader.js'
                     }
                 ]
+            },
+            {
+                test: /\.vue$/,
+                use: ['vue-loader']
             },
             { test: /\.css$/, use: ['style-loader', 'css-loader'] },
             { test: /\.less$/, use: ['style-loader', 'css-loader', 'less-loader'] }
@@ -69,6 +84,11 @@ module.exports = {
             }
         }
     },
+    // resolve: {
+    //     alias: {
+    //         'vue$': 'vue/dist/vue.esm.js'
+    //     }
+    // },
     mode: 'development', // development  production
     devServer: {
         contentBase: './dist',
@@ -84,6 +104,7 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({ template: './index.html' }),
-        new CleanWebpackPlugin({ cleanAfterEveryBuildPatterns: ['dist'] })
+        new CleanWebpackPlugin({ cleanAfterEveryBuildPatterns: ['dist'] }),
+        new VueLoaderPlugin(),
     ]
 };
