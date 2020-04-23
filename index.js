@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import ReactDom from 'react-dom';
-import {createMap, MapLayerHeatmap, MapLayerPoint} from './olService'
+import {createMap, MapLayerHeatmap, MapLayerPoint} from './MapServive'
 import './index.css';
 let features = window.citys.map(o => {
     return {
@@ -17,14 +17,16 @@ let features = window.citys.map(o => {
                 text: '11'
             }
         ],
+        title: o.name,
         data: { // 给当前feature添加一些标识数据
             ...o
         }
     }
 })
+features.length = 10;
 console.log(features.slice(0,10))
 let mapLayerPointCls = new MapLayerPoint({features});
-// let mapLayerHeatmapCls = new MapLayerHeatmap({features});
+let mapLayerHeatmapCls = new MapLayerHeatmap({features});
 
 class Home extends Component {
   componentDidMount(){
@@ -33,6 +35,7 @@ class Home extends Component {
   btnclick(type) {
     console.log('的分公司的')
     let layer = mapLayerPointCls.layer
+    // layer = mapLayerHeatmapCls.layer
     if ( type === 0 ) {
       this.map.removeLayer(layer)
     } else if ( type === 1 ) {
