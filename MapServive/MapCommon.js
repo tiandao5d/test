@@ -1,12 +1,10 @@
 import ol from "openlayers";
+const Feature = ol.Feature;
 const Collection = ol.Collection;
 const LayerGroup = ol.layer.Group;
-
-const Feature = ol.Feature;
+const LayerHeatmap = ol.layer.Heatmap;
+const LayerVector = ol.layer.Vector;
 const SourceVector = ol.source.Vector;
-const Point = ol.geom.Point;
-const Polygon = ol.geom.Polygon;
-const MultiPolygon = ol.geom.MultiPolygon;
 
 function fromLonLat(point) {
   return ol.proj.fromLonLat(point);
@@ -39,89 +37,87 @@ class MapLayerGroup {
   }
 }
 
-// 常用图层的基类
-class MapBaseLayer {
-  clear() {
-    this.setFeatures([]);
-  }
-  // 添加数据点
-  // 参数为数据点的集合，例如
-  setFeatures(features) {
-    let olFeatures = features.map((o) => {
-      return new MapFeature({oriItem: o}).feature;
-    });
-    let source = new SourceVector({
-      features: olFeatures,
-    });
-    this.layer.setSource(source);
-  }
-}
-
-
-class MapFeature {
-  constructor(options = {}){
-    this.oriItem = jsonCopy(options.oriItem);
-    this.feature = new Feature();
-    this.init();
-  }
-  init() {
-    let item = this.oriItem;
-    let geometry;
-    if ( item.type === 'polygon' ) {
-      geometry = this.geometryPolygon(item.points);
-    } else { // 默认是点
-      geometry = this.geometryPoint(item.point);
-    }
-    this.feature.setGeometry(geometry);
+class MapFeatureBase {
+  reset() {
+    this.setStyle();
+    this.setGeometry();
     this.addFeatureMethods();
   }
+  setStyle(style = this.style) {
+    this.feature.setStyle(style);
+  }
+  setGeometry(geometry = this.geometry) {
+    this.feature.setGeometry(geometry);
+  }
   // 添加一些自定方法
-  addFeatureMethods(options = {}) {
+  addFeatureMethods() {
     let ft = this.feature;
     let oriItem = this.oriItem;
-    let createStyle = options.createStyle;
+    let createStyle = this.createStyle;
     // xl开头辨别用户自定义方法
     // 设置单个feature的样式
     ft.xlSetStyle = function(style) {
-      if ( ! ( typeof createStyle === 'function') ) {
+      if (!(typeof createStyle === "function")) {
         return false;
       }
       style = createStyle(style);
       this.setStyle(style);
-    }
-     // 原始数据存储
-    ft.xlGetOriItemCopy = function(){
+    };
+    // 原始数据存储
+    ft.xlGetOriItemCopy = function() {
       return oriItem;
     };
-  }
-  stylePolygon(style = {}) {
-    let d_fill = "rgba(0,0,0, 0.5)"; // 默认填充颜色
-    let d_color = "#f0f"; // 默认边框颜色
-    let d_width = 5; // 默认边框宽度
-    let stroke = style.stroke || {};
-    let fill = style.fill;
-    return new Style({
-      stroke: new Stroke({
-        color: stroke.color || d_color,
-        width: stroke.width || d_width,
-      }),
-      fill: new Fill({
-        color: fill || d_fill,
-      }),
-    });
   }
   geometryTransform(geometry) {
     return geometry.transform("EPSG:4326", "EPSG:3857");
   }
-  geometryPolygon(points) {
-    let geometry = new Polygon([points]);
-    this.geometryTransform(geometry);
-    return geometry;
+}
+class MapFeature extends Feature {
+  xlSetStyle(style = this.xlStyle) {
+    this.setStyle(style);
   }
-  geometryPoint(point) {
-    let geometry = new Point(point);
-    this.geometryTransform(geometry);
-    return geometry;
+  xlSetGeometry(geometry = this.xlGeometry) {
+    this.setGeometry(geometry);
+  }
+  geometryTransform(geometry) {
+    return geometry.transform("EPSG:4326", "EPSG:3857");
+  }
+}
+
+class MapLayerHeadmap extends LayerHeatmap {
+  constructor(options = {}) {
+    super({
+      blur: 15,
+      radius: 10,
+      weight: function(feature) {
+        return Math.random();
+      },
+    });
+    if (options.features) {
+      this.xlSetFeatures(options.features);
+    }
+  }
+  xlSetFeatures(features) {
+    this.setSource(
+      new SourceVector({
+        features,
+      })
+    );
+  }
+}
+class MapLayerVector extends LayerVector {
+  constructor(options = {}) {
+    super();
+    if (options.features) {
+      this.xlSetFeatures(options.features);
+    }
+  }
+  xlSetFeatures(features) {
+    this.setSource(
+      new SourceVector({
+        features,
+      })
+    );
   }
 }
 
@@ -129,5 +125,8 @@ export {
   fromLonLat,
   jsonCopy,
   MapLayerGroup,
-  MapBaseLayer
-}
+  MapFeature,
+  MapFeatureBase,
+  MapLayerHeadmap,
+  MapLayerVector,
+};

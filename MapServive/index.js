@@ -1,12 +1,17 @@
 import ol from "openlayers";
-import { MapLayerPoint } from "./MapLayerPoint";
-import { MapLayerHeatmap } from "./MapLayerHeatmap";
+import { MapFeaturePoint } from "./MapLayerPoint";
+import { MapFeatureHeatmap } from "./MapLayerHeatmap";
 import { MapLayerBasemap } from "./MapLayerBasemap";
-import { MapLayerPolygon } from './MapLayerPolygon'
-import { fromLonLat, MapLayerGroup } from "./MapCommon";
+import { MapFeaturePolygon } from './MapLayerPolygon'
+import { fromLonLat, MapLayerGroup, 
+  MapLayerHeadmap,
+  MapLayerVector } from "./MapCommon";
 
 const Map = ol.Map;
 const View = ol.View;
+const LayerHeatmap = ol.layer.Heatmap;
+const LayerVector = ol.layer.Vector;
+const SourceVector = ol.source.Vector;
 
 const mapLayerBasemapCls = new MapLayerBasemap();
 
@@ -50,12 +55,36 @@ function createMap(target) {
   return map;
 }
 
+
+
+export function heatmapLayer(features) {
+  features = features.map((o) => new MapFeatureHeatmap({ oriItem: o }))
+  let layer = new MapLayerHeadmap({
+    features
+  });
+  return layer;
+}
+
+export function pointLayer(features) {
+  features = features.map((o) => new MapFeaturePoint({ oriItem: o }).feature)
+  let layer = new MapLayerVector({
+    features
+  });
+  return layer;
+}
+
+export function polygonLayer(features) {
+  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }).feature)
+  let layer = new MapLayerVector({
+    features
+  });
+  return layer;
+}
+
 export {
   createMap,
   fromLonLat,
-  MapLayerPoint,
-  MapLayerHeatmap,
   MapLayerBasemap,
-  MapLayerPolygon,
   MapLayerGroup,
+  MapFeaturePoint
 };

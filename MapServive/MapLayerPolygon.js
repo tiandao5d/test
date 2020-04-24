@@ -1,11 +1,15 @@
 import ol from "openlayers";
-import { MapBaseLayer } from "./MapCommon";
+import { jsonCopy, MapFeatureBase } from "./MapCommon";
+const Feature = ol.Feature;
+
 const LayerVector = ol.layer.Vector;
+const SourceVector = ol.source.Vector;
+const Polygon = ol.geom.Polygon;
 
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
 const Stroke = ol.style.Stroke;
-// 数据点格式
+// 数据格式
 // [
 //   {
 //     type: "polygon",
@@ -38,14 +42,14 @@ const Stroke = ol.style.Stroke;
 //   },
 // ];
 
-// 数据点图层
-class MapLayerPolygon extends MapBaseLayer {
+class MapFeaturePolygon extends MapFeatureBase {
   constructor(options = {}) {
-    super();
-    this.layer = this.createLayer();
-    if (options.features) {
-      this.setFeatures(options.features);
-    }
+		super();
+    let item = this.oriItem = jsonCopy(options.oriItem);
+		this.geometry = this.createGeometry(item.points);
+		this.style = this.createStyle(item.style);
+    this.feature = new Feature();
+    this.reset();
   }
   createStyle(style = {}) {
     let d_fill = "rgba(0,0,0, 0.5)"; // 默认填充颜色
@@ -63,17 +67,11 @@ class MapLayerPolygon extends MapBaseLayer {
       }),
     });
   }
-  // 创建一个图层
-  createLayer() {
-    let createStyle = this.createStyle;
-    let layer = new LayerVector({
-      style(feature) {
-        let { style } = feature.xlGetOriItemCopy();
-        return createStyle(style);
-      },
-    });
-    return layer;
+  createGeometry(points) {
+    let geometry = new Polygon([points]);
+    this.geometryTransform(geometry);
+    return geometry;
   }
 }
 
-export { MapLayerPolygon };
+export { MapFeaturePolygon };

@@ -2,9 +2,9 @@ import React, { Component, Fragment } from "react";
 import ReactDom from "react-dom";
 import {
   createMap,
-  MapLayerHeatmap,
-  MapLayerPoint,
-  MapLayerPolygon,
+  polygonLayer,
+  pointLayer,
+  heatmapLayer
 } from "./MapServive";
 import "./index.css";
 let features = window.citys.map((o) => {
@@ -45,9 +45,6 @@ let pfs = [
   },
 ];
 
-let mapLayerPointCls = new MapLayerPoint({ features });
-let mapLayerHeatmapCls = new MapLayerHeatmap({ features });
-let mapLayerPolygonCls = new MapLayerPolygon({ features: pfs });
 
 class Home extends Component {
   componentDidMount() {
@@ -56,9 +53,9 @@ class Home extends Component {
   }
   btnclick(type) {
     console.log("的分公司的");
-    let layer1 = mapLayerPointCls.layer;
-    let layer2 = mapLayerHeatmapCls.layer;
-    let layer3 = mapLayerPolygonCls.layer;
+    let layer1 = pointLayer(features);
+    let layer2 = heatmapLayer(features);
+    let layer3 = polygonLayer(pfs);
     if (type === 0) {
       this.map.removeLayer(layer1);
       this.map.removeLayer(layer2);

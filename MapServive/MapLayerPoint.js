@@ -1,6 +1,11 @@
 import ol from "openlayers";
-import { MapBaseLayer } from "./MapCommon";
+import { jsonCopy, MapFeatureBase } from "./MapCommon";
+const Feature = ol.Feature;
+
 const LayerVector = ol.layer.Vector;
+const SourceVector = ol.source.Vector;
+const Point = ol.geom.Point;
+
 
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
@@ -23,14 +28,14 @@ const Stroke = ol.style.Stroke;
 //     }
 // ]
 
-// 数据点图层
-class MapLayerPoint extends MapBaseLayer {
+class MapFeaturePoint extends MapFeatureBase {
   constructor(options = {}) {
-    super();
-    this.layer = this.createLayer();
-    if (options.features) {
-      this.setFeatures(options.features);
-    }
+		super();
+    let item = this.oriItem = jsonCopy(options.oriItem);
+		this.geometry = this.createGeometry(item.point);
+    this.style = item.style.map(o => this.createStyle(o));
+    this.feature = new Feature();
+    this.reset();
   }
   createStyle(style) {
     return new Style({
@@ -60,24 +65,10 @@ class MapLayerPoint extends MapBaseLayer {
       })
     })
   }
-  // 创建一个图层
-  createLayer() {
-    let createStyle = this.createStyle;
-    let createTitleStyle = this.createTitleStyle;
-    let layer = new LayerVector({
-      style(feature) {
-        let {style: styles, title} = feature.xlGetOriItemCopy();
-        styles = styles.map((o) => {
-          return createStyle(o);
-        });
-        if (title) {
-          styles.push(createTitleStyle(title));
-        }
-        return styles;
-      },
-    });
-    return layer;
+  createGeometry(point) {
+    let geometry = new Point(point);
+    this.geometryTransform(geometry);
+    return geometry;
   }
 }
-
-export { MapLayerPoint };
+export { MapFeaturePoint };
