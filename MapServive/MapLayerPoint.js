@@ -66,7 +66,7 @@ class MapLayerPoint extends MapBaseLayer {
     let createTitleStyle = this.createTitleStyle;
     let layer = new LayerVector({
       style(feature) {
-        let {style: styles, title} = feature.getOriItemCopy();
+        let {style: styles, title} = feature.xlGetOriItemCopy();
         styles = styles.map((o) => {
           return createStyle(o);
         });
