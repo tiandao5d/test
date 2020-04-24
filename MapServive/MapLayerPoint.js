@@ -1,12 +1,7 @@
 import ol from "openlayers";
-import { jsonCopy, MapFeatureBase } from "./MapCommon";
+import { jsonCopy } from "./MapCommon";
 const Feature = ol.Feature;
-
-const LayerVector = ol.layer.Vector;
-const SourceVector = ol.source.Vector;
 const Point = ol.geom.Point;
-
-
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
 const Text = ol.style.Text;
@@ -28,16 +23,37 @@ const Stroke = ol.style.Stroke;
 //     }
 // ]
 
-class MapFeaturePoint extends MapFeatureBase {
+class MapFeaturePoint extends Feature {
   constructor(options = {}) {
-		super();
-    let item = this.oriItem = jsonCopy(options.oriItem);
-		this.geometry = this.createGeometry(item.point);
-    this.style = item.style.map(o => this.createStyle(o));
-    this.feature = new Feature();
-    this.reset();
+    super();
+    this.xlOriItem = options.oriItem;
+    this.xlSetPoint();
+    this.xlSetStyle();
   }
-  createStyle(style) {
+  xlSetPoint(point = this.xlOriItem.point) {
+    let geometry = new Point(point);
+    geometry.transform("EPSG:4326", "EPSG:3857");
+    this.setGeometry(geometry);
+  }
+  xlSetStyle(style = this.xlOriItem.style) {
+    style = style.map((o) => this.xlCreateStyle(o));
+    this.setStyle(style);
+  }
+  xlGetOriItemCopy() {
+    return jsonCopy(this.xlOriItem);
+  }
+  xlCreateTitleStyle(title) {
+    return new Style({
+      text: new Text({
+        offsetY: 30,
+        text: title,
+        fill: new Fill({
+          color: "#000",
+        }),
+      }),
+    });
+  }
+  xlCreateStyle(style) {
     return new Style({
       text: new Text({
         text: style.text,
@@ -53,22 +69,6 @@ class MapFeaturePoint extends MapFeatureBase {
           : null,
       }),
     });
-  }
-  createTitleStyle(title) {
-    return new Style({
-      text: new Text({
-        offsetY: 30,
-        text: title,
-        fill: new Fill({
-          color: '#000'
-        })
-      })
-    })
-  }
-  createGeometry(point) {
-    let geometry = new Point(point);
-    this.geometryTransform(geometry);
-    return geometry;
   }
 }
 export { MapFeaturePoint };

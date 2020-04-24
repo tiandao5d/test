@@ -1,11 +1,7 @@
 import ol from "openlayers";
-import { jsonCopy, MapFeatureBase } from "./MapCommon";
+import { jsonCopy, geometryTransform } from "./MapCommon";
 const Feature = ol.Feature;
-
-const LayerVector = ol.layer.Vector;
-const SourceVector = ol.source.Vector;
 const Polygon = ol.geom.Polygon;
-
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
 const Stroke = ol.style.Stroke;
@@ -20,7 +16,7 @@ const Stroke = ol.style.Stroke;
 //         width: 5,
 //       },
 //     },
-//     points: [
+//     point: [
 //       [120.08262882937571, 33.09494246306551],
 //       [120.08863697756544, 33.09192235451286],
 //       [120.08743534793108, 33.0868886097096],
@@ -42,16 +38,26 @@ const Stroke = ol.style.Stroke;
 //   },
 // ];
 
-class MapFeaturePolygon extends MapFeatureBase {
+class MapFeaturePolygon extends Feature {
   constructor(options = {}) {
-		super();
-    let item = this.oriItem = jsonCopy(options.oriItem);
-		this.geometry = this.createGeometry(item.points);
-		this.style = this.createStyle(item.style);
-    this.feature = new Feature();
-    this.reset();
+    super();
+    this.xlOriItem = options.oriItem;
+    this.xlSetPoint();
+    this.xlSetStyle();
   }
-  createStyle(style = {}) {
+  xlSetPoint(point = this.xlOriItem.point) {
+		let geometry = new Polygon([point]);
+		geometryTransform(geometry);
+    this.setGeometry(geometry);
+  }
+  xlSetStyle(style = this.xlOriItem.style) {
+    style = this.xlCreateStyle(style);
+    this.setStyle(style);
+  }
+  xlGetOriItemCopy() {
+    return jsonCopy(this.xlOriItem);
+	}
+  xlCreateStyle(style = {}) {
     let d_fill = "rgba(0,0,0, 0.5)"; // 默认填充颜色
     let d_color = "#f0f"; // 默认边框颜色
     let d_width = 5; // 默认边框宽度
@@ -66,11 +72,6 @@ class MapFeaturePolygon extends MapFeatureBase {
         color: fill || d_fill,
       }),
     });
-  }
-  createGeometry(points) {
-    let geometry = new Polygon([points]);
-    this.geometryTransform(geometry);
-    return geometry;
   }
 }
 

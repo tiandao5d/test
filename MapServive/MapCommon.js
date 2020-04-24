@@ -1,5 +1,4 @@
 import ol from "openlayers";
-const Feature = ol.Feature;
 const Collection = ol.Collection;
 const LayerGroup = ol.layer.Group;
 const LayerHeatmap = ol.layer.Heatmap;
@@ -8,6 +7,10 @@ const SourceVector = ol.source.Vector;
 
 function fromLonLat(point) {
   return ol.proj.fromLonLat(point);
+}
+
+function geometryTransform (geometry) {
+  geometry.transform("EPSG:4326", "EPSG:3857");
 }
 
 function jsonCopy(obj) {
@@ -34,53 +37,6 @@ class MapLayerGroup {
   // 过去当前图层组中的图层
   getLayers() {
     return this.group.getLayers();
-  }
-}
-
-class MapFeatureBase {
-  reset() {
-    this.setStyle();
-    this.setGeometry();
-    this.addFeatureMethods();
-  }
-  setStyle(style = this.style) {
-    this.feature.setStyle(style);
-  }
-  setGeometry(geometry = this.geometry) {
-    this.feature.setGeometry(geometry);
-  }
-  // 添加一些自定方法
-  addFeatureMethods() {
-    let ft = this.feature;
-    let oriItem = this.oriItem;
-    let createStyle = this.createStyle;
-    // xl开头辨别用户自定义方法
-    // 设置单个feature的样式
-    ft.xlSetStyle = function(style) {
-      if (!(typeof createStyle === "function")) {
-        return false;
-      }
-      style = createStyle(style);
-      this.setStyle(style);
-    };
-    // 原始数据存储
-    ft.xlGetOriItemCopy = function() {
-      return oriItem;
-    };
-  }
-  geometryTransform(geometry) {
-    return geometry.transform("EPSG:4326", "EPSG:3857");
-  }
-}
-class MapFeature extends Feature {
-  xlSetStyle(style = this.xlStyle) {
-    this.setStyle(style);
-  }
-  xlSetGeometry(geometry = this.xlGeometry) {
-    this.setGeometry(geometry);
-  }
-  geometryTransform(geometry) {
-    return geometry.transform("EPSG:4326", "EPSG:3857");
   }
 }
 
@@ -124,9 +80,8 @@ class MapLayerVector extends LayerVector {
 export {
   fromLonLat,
   jsonCopy,
+  geometryTransform,
   MapLayerGroup,
-  MapFeature,
-  MapFeatureBase,
   MapLayerHeadmap,
   MapLayerVector,
 };

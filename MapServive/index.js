@@ -66,7 +66,7 @@ export function heatmapLayer(features) {
 }
 
 export function pointLayer(features) {
-  features = features.map((o) => new MapFeaturePoint({ oriItem: o }).feature)
+  features = features.map((o) => new MapFeaturePoint({ oriItem: o }))
   let layer = new MapLayerVector({
     features
   });
@@ -74,7 +74,7 @@ export function pointLayer(features) {
 }
 
 export function polygonLayer(features) {
-  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }).feature)
+  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }))
   let layer = new MapLayerVector({
     features
   });
