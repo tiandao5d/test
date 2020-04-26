@@ -11,6 +11,8 @@ import { MapFeaturePoint } from "./MapLayerPoint";
 import { MapFeatureHeatmap } from "./MapLayerHeatmap";
 import { MapLayerBasemap } from "./MapLayerBasemap";
 import { MapFeaturePolygon } from "./MapLayerPolygon";
+import { MapFeatureCircle } from './MapLayerCircle';
+import { MapFeatureRectangle } from './MapLayerRectangle';
 import {
   pointToMap,
   pointFromMap,
@@ -52,14 +54,19 @@ function createMap(target) {
       })
     );
   });
+  let selectedArr = [];
   map.on("singleclick", function(evt) {
     console.log(mapLayerBasemapCls.xlGetLayers());
-    let arr = [];
+    selectedArr.forEach(ft => {
+      ft.xlSetSelected(false);
+    })
+    selectedArr = [];
     map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-      arr.push(feature);
+      selectedArr.push(feature);
+      feature.xlSetSelected();
       // layerTileGroupCls.group.setLayers(new Collection())
     });
-    console.log(arr);
+    console.log(selectedArr);
   });
   return map;
 }
@@ -81,7 +88,15 @@ export function pointLayer(features) {
 }
 
 export function polygonLayer(features) {
-  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }));
+  features = features.map((o) => {
+    if ( o.type === 'polygon' ) {
+      return new MapFeaturePolygon({ oriItem: o });
+    } else if ( o.type === 'circle' ) {
+      return new MapFeatureCircle({ oriItem: o });
+    } else if ( o.type === 'rectangle' ) {
+      return new MapFeatureRectangle({ oriItem: o });
+    }
+  });
   let layer = new MapLayerVector({
     features,
   });

@@ -4,7 +4,7 @@ import {
   createMap,
   polygonLayer,
   pointLayer,
-  heatmapLayer
+  heatmapLayer,
 } from "./MapServive";
 import "./index.css";
 let features = window.citys.map((o) => {
@@ -43,8 +43,32 @@ let pfs = [
     },
     point: [[115.242634,40.513654],[114.425525,39.174588],[115.342884,38.892436],[113.605584,38.831417],[115.242634,40.513654]],
   },
+  {
+    type: 'circle',
+    center: [112,40],
+    radius: 100000,
+    style: {
+      fill: 'rgba(0,0,0,0.5)',
+      stroke: {
+        color: '#ff0',
+        width: 5
+      },
+    },
+  },
+  {
+    type: 'rectangle',
+    lefttop: [113,41],
+    width: 100000,
+    height: 50000,
+    style: {
+      fill: 'rgba(0,0,0,0.5)',
+      stroke: {
+        color: '#ff0',
+        width: 5
+      },
+    },
+  }
 ];
-
 
 class Home extends Component {
   componentDidMount() {

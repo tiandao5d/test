@@ -37,18 +37,22 @@ const Stroke = ol.style.Stroke;
 //     ],
 //   },
 // ];
-
-class MapFeaturePolygon extends Feature {
-  constructor(options = {}) {
-    super();
-    this.xlOriItem = options.oriItem;
-    this.xlSetPoint();
-    this.xlSetStyle();
-  }
-  xlSetPoint(point = this.xlOriItem.point) {
-		let geometry = new Polygon([point]);
-		geometryTransform(geometry);
-    this.setGeometry(geometry);
+class MapFeatureShape extends Feature {
+  // 进入或退出选中状态，type === false为退出选中
+  xlSetSelected(type, style) {
+    if ( type === false ) { // 还原原有的样式状态
+      this.xlSetStyle();
+      return this;
+    }
+    style = style || this.xlOriItem.selectedStyle || {
+      fill: "rgba(0,0,0,0.5)",
+      stroke: {
+        color: "#f00",
+        width: 5,
+      },
+    }
+    this.xlSetStyle(style);
+    return this;
   }
   xlSetStyle(style = this.xlOriItem.style) {
     style = this.xlCreateStyle(style);
@@ -74,5 +78,19 @@ class MapFeaturePolygon extends Feature {
     });
   }
 }
+class MapFeaturePolygon extends MapFeatureShape {
+  constructor(options = {}) {
+    super();
+    this.xlOriItem = options.oriItem;
+    this.xlSetPoint();
+    this.xlSetStyle();
+  }
+  xlSetPoint(point = this.xlOriItem.point) {
+		let geometry = new Polygon([point]);
+		geometryTransform(geometry);
+    this.setGeometry(geometry);
+  }
+}
 
-export { MapFeaturePolygon };
+
+export { MapFeaturePolygon, MapFeatureShape };
