@@ -1,30 +1,40 @@
+/**
+ * openlayers的封装，唯一对外的文件，请不要在外部直接引入此文件夹下的其他文件
+ * xl开头的属性和方法是对外使用的，方便以后如果更换地图
+ * 如果更换地图，可以提供这些相应的方法和属性
+ * 降低了和openlayers的耦合性
+ * 请不要在外部直接openlayers的原生方法和属性，避免造成高耦合
+ * 如果需要用到原生方法或属性，请在这里对应的文件中加入xl前缀方法或属性
+ */
 import ol from "openlayers";
 import { MapFeaturePoint } from "./MapLayerPoint";
 import { MapFeatureHeatmap } from "./MapLayerHeatmap";
 import { MapLayerBasemap } from "./MapLayerBasemap";
-import { MapFeaturePolygon } from './MapLayerPolygon'
-import { fromLonLat, MapLayerGroup, 
+import { MapFeaturePolygon } from "./MapLayerPolygon";
+import {
+  pointToMap,
+  pointFromMap,
+  MapLayerGroup,
   MapLayerHeadmap,
-  MapLayerVector } from "./MapCommon";
+  MapLayerVector,
+} from "./MapCommon";
 
 const Map = ol.Map;
 const View = ol.View;
-const LayerHeatmap = ol.layer.Heatmap;
-const LayerVector = ol.layer.Vector;
-const SourceVector = ol.source.Vector;
 
 const mapLayerBasemapCls = new MapLayerBasemap();
 
 function createMap(target) {
-  let mapStatusObj = JSON.parse(localStorage.getItem('mapStatusObj')) || {
+  let mapStatusObj = JSON.parse(localStorage.getItem("mapStatusObj")) || 
+  {
     center: [104.41, 35.82],
-    zoom: 4
-  }
+    zoom: 4,
+  };
   const map = new Map({
     target,
-    layers: [mapLayerBasemapCls.group],
+    layers: [mapLayerBasemapCls],
     view: new View({
-      center: fromLonLat(mapStatusObj.center),
+      center: pointToMap(mapStatusObj.center),
       zoom: mapStatusObj.zoom,
     }),
   });
@@ -33,18 +43,17 @@ function createMap(target) {
     let zoom = view.getZoom();
     let center = view.getCenter();
 
-    center = ol.proj.transform(
-      center,
-      "EPSG:3857",
-      "EPSG:4326"
+    center = pointFromMap(center);
+    localStorage.setItem(
+      "mapStatusObj",
+      JSON.stringify({
+        center,
+        zoom,
+      })
     );
-    localStorage.setItem('mapStatusObj', JSON.stringify({
-      center,
-      zoom
-    }))
-  })
+  });
   map.on("singleclick", function(evt) {
-    console.log(evt);
+    console.log(mapLayerBasemapCls.xlGetLayers());
     let arr = [];
     map.forEachFeatureAtPixel(evt.pixel, function(feature) {
       arr.push(feature);
@@ -55,36 +64,38 @@ function createMap(target) {
   return map;
 }
 
-
-
 export function heatmapLayer(features) {
-  features = features.map((o) => new MapFeatureHeatmap({ oriItem: o }))
+  features = features.map((o) => new MapFeatureHeatmap({ oriItem: o }));
   let layer = new MapLayerHeadmap({
-    features
+    features,
   });
   return layer;
 }
 
 export function pointLayer(features) {
-  features = features.map((o) => new MapFeaturePoint({ oriItem: o }))
+  features = features.map((o) => new MapFeaturePoint({ oriItem: o }));
   let layer = new MapLayerVector({
-    features
+    features,
   });
   return layer;
 }
 
 export function polygonLayer(features) {
-  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }))
+  features = features.map((o) => new MapFeaturePolygon({ oriItem: o }));
   let layer = new MapLayerVector({
-    features
+    features,
   });
   return layer;
 }
 
+// 所有对外开放的类或函数
 export {
   createMap,
-  fromLonLat,
-  MapLayerBasemap,
-  MapLayerGroup,
-  MapFeaturePoint
+  MapLayerGroup, // 图层组，可以对其中图层进行更改设置
+  MapLayerBasemap, // 地图底图图层，提供多个可选地图底图，继承自图层组图层组
+  MapLayerVector, // 基本图层可以加入point，polygon等feature
+  MapLayerHeadmap, // 热点图图层
+  MapFeaturePoint, // 点元素设置
+  MapFeatureHeatmap, // 热点图元素
+  MapFeaturePolygon, // 多边形元素
 };

@@ -9,28 +9,28 @@ const LayerTile = ol.layer.Tile;
 class MapLayerBasemap extends MapLayerGroup {
   constructor() {
     super();
-    this.oriItems = this.getOriItems();
-    this.onSwitchItem(this.oriItems[0]);
+    this.xlOriItems = this.xlGetOriItems();
+    this.xlSwitchItem(this.xlOriItems[0]);
   }
   // 切换图层
-  onSwitchItem(item) {
+  xlSwitchItem(item) {
     let k = typeof item === "string" ? item : item.id;
     let layer = this[k]();
-    this.setLayers(layer);
+    this.xlSetLayers(layer);
   }
   // 用于界面用户可切换图层的数据
-  getOriItems() {
+  xlGetOriItems() {
     return [
-      { id: "getOSM", title: "osm" },
-      { id: "getGoogle", title: "google" },
+      { id: "xlGetOSM", title: "osm" },
+      { id: "xlGetGoogle", title: "google" },
     ];
   }
-  getOSM() {
+  xlGetOSM() {
     return new LayerTile({
       source: new SourceOSM(),
     });
   }
-  getGoogle() {
+  xlGetGoogle() {
     return new LayerTile({
       title: "google street",
       coordSys: "gww",
