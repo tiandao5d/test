@@ -43,7 +43,7 @@
     "animate.css": "3.5.2",
     "antd": "^4.0.2",
     "bootstrap": "3.3.7",
-    "jquery": "3.2.1",
+    "jquery": "3.5.0",
     "jszip": "^3.2.0",
     "lodash": "^4.17.15",
     "raw-loader": "^4.0.0",
