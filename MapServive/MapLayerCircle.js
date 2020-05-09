@@ -67,7 +67,7 @@ class MapFeatureCircle extends MapFeatureShape {
   }
   xlSetCenter({center, radius} = this.xlOriItem) {
 		let geometry = new Circle(pointToMap(center), getProjectedRadius(center, radius));
-		// geometryTransform(geometry);
+		// geometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
 }

@@ -21,14 +21,27 @@ function pointFromMap(point) {
 
 // 转进来，需要转的对象不同
 // 将外部使用的"EPSG:4326"转为openlayers使用的"EPSG:3857"
-function geometryTransform (geometry) {
+function geometryTransformToMap (geometry) {
   geometry.transform("EPSG:4326", "EPSG:3857");
+}
+
+// 转出去，需要转的对象不同
+// 将外部使用的"EPSG:3857"转为openlayers使用的"EPSG:4326"
+function geometryTransformFromMap (geometry) {
+  geometry.transform("EPSG:3857", "EPSG:4326");
 }
 
 // 一种简单的对象拷贝，方便将原数据拷贝一份使用
 // 不至于造成原数据的更改
 function jsonCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
+}
+
+function toArray(item) {
+  if ( Array.isArray(item) ) {
+    return item;
+  }
+  return [item];
 }
 
 // 图层组
@@ -52,50 +65,12 @@ class MapLayerGroup extends LayerGroup {
   }
 }
 
-class MapLayerHeadmap extends LayerHeatmap {
-  constructor(options = {}) {
-    super({
-      blur: options.blur || 15,
-      radius: options.radius || 10,
-      weight: function(feature) {
-        let item = feature.xlGetOriItemCopy();
-        return item.weight || Math.random();
-      },
-    });
-    if (options.features) {
-      this.xlSetFeatures(options.features);
-    }
-  }
-  xlSetFeatures(features) {
-    this.setSource(
-      new SourceVector({
-        features,
-      })
-    );
-  }
-}
-class MapLayerVector extends LayerVector {
-  constructor(options = {}) {
-    super();
-    if (options.features) {
-      this.xlSetFeatures(options.features);
-    }
-  }
-  xlSetFeatures(features) {
-    this.setSource(
-      new SourceVector({
-        features,
-      })
-    );
-  }
-}
-
 export {
   jsonCopy,
   pointToMap,
   pointFromMap,
-  geometryTransform,
+  geometryTransformToMap,
+  geometryTransformFromMap,
+  toArray,
   MapLayerGroup,
-  MapLayerHeadmap,
-  MapLayerVector,
 };

@@ -2,13 +2,14 @@ import React, { Component, Fragment } from "react";
 import ReactDom from "react-dom";
 import {
   createMap,
-  polygonLayer,
-  pointLayer,
-  heatmapLayer,
+  MapLayerVector,
+  MapLayerHeadmap,
+  MapDraw
 } from "./MapServive";
 import "./index.css";
 let features = window.citys.map((o) => {
   return {
+    type: 'point',
     point: o.lnglat,
     style: [
       {
@@ -30,7 +31,6 @@ let features = window.citys.map((o) => {
   };
 });
 features.length = 10;
-console.log(features.slice(0, 10));
 let pfs = [
   {
     type: "polygon",
@@ -76,18 +76,31 @@ class Home extends Component {
     this.btnclick(1)
   }
   btnclick(type) {
-    console.log("的分公司的");
-    let layer1 = pointLayer(features);
-    let layer2 = heatmapLayer(features);
-    let layer3 = polygonLayer(pfs);
+    let layer1 = new MapLayerVector({
+      features
+    });
+    let layer2 = new MapLayerHeadmap({
+      features
+    });
+    let layer3 = new MapLayerVector({
+      features: pfs
+    });
     if (type === 0) {
       this.map.removeLayer(layer1);
       this.map.removeLayer(layer2);
       this.map.removeLayer(layer3);
     } else if (type === 1) {
       this.map.addLayer(layer1);
-      // this.map.addLayer(layer2);
+      this.map.addLayer(layer2);
       this.map.addLayer(layer3);
+      this.mapDrawCls = new MapDraw({
+        map: this.map,
+        layer: layer3
+      })
+      this.mapDrawCls.xlOnEnd = function(res) {
+        console.log(res)
+      }
+      this.mapDrawCls.xlEnter('rectangle')
     }
   }
   render() {

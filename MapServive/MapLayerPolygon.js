@@ -1,5 +1,5 @@
 import ol from "openlayers";
-import { jsonCopy, geometryTransform } from "./MapCommon";
+import { jsonCopy, geometryTransformToMap } from "./MapCommon";
 const Feature = ol.Feature;
 const Polygon = ol.geom.Polygon;
 const Style = ol.style.Style;
@@ -40,6 +40,25 @@ const Collection = ol.Collection;
 //     ],
 //   },
 // ];
+// 所有形状的默认样式
+function getShapeDefaultStyle(type) {
+  if ( type === true ) { // 选中状态
+    return {
+      fill: "rgba(0,0,0,0.5)",
+      stroke: {
+        color: "#f00",
+        width: 5,
+      },
+    }
+  }
+  return {
+    fill: 'rgba(0,0,0,0.5)',
+    stroke: {
+      color: '#ff0',
+      width: 5
+    },
+  }
+}
 
 // 形状基类，矩形，圆，多边形等都继承自此基类
 class MapFeatureShape extends Feature {
@@ -49,13 +68,7 @@ class MapFeatureShape extends Feature {
       this.xlSetStyle();
       return this;
     }
-    style = style || this.xlOriItem.selectedStyle || {
-      fill: "rgba(0,0,0,0.5)",
-      stroke: {
-        color: "#f00",
-        width: 5,
-      },
-    }
+    style = style || this.xlOriItem.selectedStyle || getShapeDefaultStyle(true)
     this.xlSetStyle(style);
     return this;
   }
@@ -67,18 +80,14 @@ class MapFeatureShape extends Feature {
     return jsonCopy(this.xlOriItem);
 	}
   xlCreateStyle(style = {}) {
-    let d_fill = "rgba(0,0,0, 0.5)"; // 默认填充颜色
-    let d_color = "#f0f"; // 默认边框颜色
-    let d_width = 5; // 默认边框宽度
-    let stroke = style.stroke || {};
+    let dstyle = getShapeDefaultStyle();
+    style = Object.assign({}, dstyle, style);
+    let stroke = style.stroke;
     let fill = style.fill;
     return new Style({
-      stroke: new Stroke({
-        color: stroke.color || d_color,
-        width: stroke.width || d_width,
-      }),
+      stroke: new Stroke(stroke),
       fill: new Fill({
-        color: fill || d_fill,
+        color: fill,
       }),
     });
   }
@@ -86,7 +95,6 @@ class MapFeatureShape extends Feature {
 class MapFeaturePolygon extends MapFeatureShape {
   constructor(options = {}) {
     super();
-    this.xlTypeId = 'polygon';
     this.xlOriItem = options.oriItem;
     this.xlSetPoint();
     this.xlSetStyle();
@@ -120,10 +128,10 @@ class MapFeaturePolygon extends MapFeatureShape {
   }
   xlSetPoint(point = this.xlOriItem.point) {
 		let geometry = new Polygon([point]);
-		geometryTransform(geometry);
+		geometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
 }
 
 
-export { MapFeaturePolygon, MapFeatureShape };
+export { MapFeaturePolygon, MapFeatureShape, getShapeDefaultStyle };

@@ -43,7 +43,6 @@ function toPoints(lefttop, w, h) {
 class MapFeatureRectangle extends MapFeatureShape {
   constructor(options = {}) {
     super();
-    this.xlTypeId = 'rectangle';
     this.xlOriItem = options.oriItem;
     this.xlSetPoint();
     this.xlSetStyle();

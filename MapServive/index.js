@@ -13,13 +13,115 @@ import { MapLayerBasemap } from "./MapLayerBasemap";
 import { MapFeaturePolygon } from "./MapLayerPolygon";
 import { MapFeatureCircle } from './MapLayerCircle';
 import { MapFeatureRectangle } from './MapLayerRectangle';
+import { MapDraw } from './MapLayerDraw';
 import {
   pointToMap,
   pointFromMap,
   MapLayerGroup,
-  MapLayerHeadmap,
-  MapLayerVector,
+  toArray,
 } from "./MapCommon";
+const Feature = ol.Feature;
+const LayerHeatmap = ol.layer.Heatmap;
+const LayerVector = ol.layer.Vector;
+const SourceVector = ol.source.Vector;
+
+class MapLayerHeadmap extends LayerHeatmap {
+  constructor(options = {}) {
+    super({
+      blur: options.blur || 15,
+      radius: options.radius || 10,
+      weight: function(feature) {
+        let item = feature.xlGetOriItemCopy();
+        return item.weight || Math.random();
+      },
+    });
+    if (options.features) {
+      this.xlSetFeatures(options.features);
+    }
+  }
+  xlGetSource() {
+    let source = this.getSource();
+    if ( !source ) {
+      source = new SourceVector()
+    }
+    this.setSource(source);
+    return source;
+  }
+  xlRemoveFeatures(features) {
+    features = toArray(features);
+    let source = this.getSource();
+    features.forEach(ft => {
+      source.removeFeature(ft);
+    })
+  }
+  xlAddFeatures(features) {
+    features = toArray(features);
+    features = features.map(o => {
+      if ( !(o instanceof Feature) ) {
+        return new MapFeatureHeatmap({ oriItem: o });
+      }
+      return o;
+    })
+    let source = this.xlGetSource();
+    source.addFeatures(features);
+  }
+  xlSetFeatures(features) {
+    features = toArray(features);
+    let source = this.xlGetSource();
+    source.clear();
+    this.xlAddFeatures(features);
+    return this;
+  }
+}
+class MapLayerVector extends LayerVector {
+  constructor(options = {}) {
+    super();
+    if (options.features) {
+      this.xlSetFeatures(options.features);
+    }
+  }
+  xlGetSource() {
+    let source = this.getSource();
+    if ( !source ) {
+      source = new SourceVector()
+    }
+    this.setSource(source);
+    return source;
+  }
+  xlRemoveFeatures(features) {
+    features = toArray(features);
+    let source = this.getSource();
+    features.forEach(ft => {
+      source.removeFeature(ft);
+    })
+  }
+  xlAddFeatures(features) {
+    features = toArray(features);
+    features = features.map(o => {
+      if ( !(o instanceof Feature) ) {
+        if ( o.type === 'polygon' ) {
+          return new MapFeaturePolygon({ oriItem: o });
+        } else if ( o.type === 'circle' ) {
+          return new MapFeatureCircle({ oriItem: o });
+        } else if ( o.type === 'rectangle' ) {
+          return new MapFeatureRectangle({ oriItem: o });
+        } else if ( o.type === 'point' ) {
+          return new MapFeaturePoint({ oriItem: o });
+        }
+      }
+      return o;
+    })
+    let source = this.xlGetSource();
+    source.addFeatures(features);
+  }
+  xlSetFeatures(features) {
+    features = toArray(features);
+    let source = this.xlGetSource();
+    source.clear();
+    this.xlAddFeatures(features);
+    return this;
+  }
+}
 
 const Map = ol.Map;
 const View = ol.View;
@@ -81,41 +183,9 @@ function createMap(target) {
   });
   return map;
 }
-
-export function heatmapLayer(features) {
-  features = features.map((o) => new MapFeatureHeatmap({ oriItem: o }));
-  let layer = new MapLayerHeadmap({
-    features,
-  });
-  return layer;
-}
-
-export function pointLayer(features) {
-  features = features.map((o) => new MapFeaturePoint({ oriItem: o }));
-  let layer = new MapLayerVector({
-    features,
-  });
-  return layer;
-}
-
-export function polygonLayer(features) {
-  features = features.map((o) => {
-    if ( o.type === 'polygon' ) {
-      return new MapFeaturePolygon({ oriItem: o });
-    } else if ( o.type === 'circle' ) {
-      return new MapFeatureCircle({ oriItem: o });
-    } else if ( o.type === 'rectangle' ) {
-      return new MapFeatureRectangle({ oriItem: o });
-    }
-  });
-  let layer = new MapLayerVector({
-    features,
-  });
-  return layer;
-}
-
 // 所有对外开放的类或函数
 export {
+  MapDraw,
   createMap,
   MapLayerGroup, // 图层组，可以对其中图层进行更改设置
   MapLayerBasemap, // 地图底图图层，提供多个可选地图底图，继承自图层组图层组

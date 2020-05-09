@@ -1,5 +1,5 @@
 import ol from "openlayers";
-import { jsonCopy, geometryTransform } from "./MapCommon";
+import { jsonCopy, geometryTransformToMap } from "./MapCommon";
 const Feature = ol.Feature;
 const Point = ol.geom.Point;
 
@@ -22,7 +22,7 @@ class MapFeatureHeatmap extends Feature {
   }
   xlSetPoint(point = this.xlOriItem.point) {
     let geometry = new Point(point);
-    geometryTransform(geometry);
+    geometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
   xlGetOriItemCopy() {

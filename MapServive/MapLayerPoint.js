@@ -1,5 +1,5 @@
 import ol from "openlayers";
-import { jsonCopy, geometryTransform } from "./MapCommon";
+import { jsonCopy, geometryTransformToMap } from "./MapCommon";
 const Feature = ol.Feature;
 const Point = ol.geom.Point;
 const Style = ol.style.Style;
@@ -76,7 +76,7 @@ class MapFeaturePoint extends Feature {
   }
   xlSetPoint(point = this.xlOriItem.point) {
     let geometry = new Point(point);
-    geometryTransform(geometry);
+    geometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
   xlSetStyle(style = this.xlOriItem.style) {
