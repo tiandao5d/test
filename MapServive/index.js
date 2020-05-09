@@ -23,6 +23,7 @@ import {
 
 const Map = ol.Map;
 const View = ol.View;
+let map = null;
 
 const mapLayerBasemapCls = new MapLayerBasemap();
 
@@ -32,7 +33,7 @@ function createMap(target) {
     center: [104.41, 35.82],
     zoom: 4,
   };
-  const map = new Map({
+  map = new Map({
     target,
     layers: [mapLayerBasemapCls],
     view: new View({
@@ -58,12 +59,22 @@ function createMap(target) {
   map.on("singleclick", function(evt) {
     console.log(mapLayerBasemapCls.xlGetLayers());
     selectedArr.forEach(ft => {
-      ft.xlSetSelected(false);
+      if ( ft.xlSetSelected ) {
+        ft.xlSetSelected(false);
+      }
+      if ( ft.xlExitDraw ) {
+        ft.xlExitDraw(map);
+      }
     })
     selectedArr = [];
     map.forEachFeatureAtPixel(evt.pixel, function(feature) {
       selectedArr.push(feature);
-      feature.xlSetSelected();
+      if ( feature.xlSetSelected ) {
+        feature.xlSetSelected();
+      }
+      if ( feature.xlEnterDraw ) {
+        feature.xlEnterDraw(map);
+      }
       // layerTileGroupCls.group.setLayers(new Collection())
     });
     console.log(selectedArr);

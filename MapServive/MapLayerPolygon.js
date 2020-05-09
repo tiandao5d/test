@@ -5,6 +5,9 @@ const Polygon = ol.geom.Polygon;
 const Style = ol.style.Style;
 const Fill = ol.style.Fill;
 const Stroke = ol.style.Stroke;
+const Modify = ol.interaction.Modify;
+const Translate = ol.interaction.Translate;
+const Collection = ol.Collection;
 // 数据格式
 // [
 //   {
@@ -37,6 +40,8 @@ const Stroke = ol.style.Stroke;
 //     ],
 //   },
 // ];
+
+// 形状基类，矩形，圆，多边形等都继承自此基类
 class MapFeatureShape extends Feature {
   // 进入或退出选中状态，type === false为退出选中
   xlSetSelected(type, style) {
@@ -81,9 +86,37 @@ class MapFeatureShape extends Feature {
 class MapFeaturePolygon extends MapFeatureShape {
   constructor(options = {}) {
     super();
+    this.xlTypeId = 'polygon';
     this.xlOriItem = options.oriItem;
     this.xlSetPoint();
     this.xlSetStyle();
+    // 记录编辑数据
+    this.modify = null;
+    this.translate = null;
+  }
+  // 退出编辑状态
+  xlExitDraw(map) {
+    if ( this.modify ) {
+      map.removeInteraction(this.modify);
+      this.modify = null;
+    }
+    if ( this.translate ) {
+      map.removeInteraction(this.translate);
+      this.translate = null;
+    }
+  }
+  // 进入编辑状态
+  xlEnterDraw(map) {
+    this.xlExitDraw(map);
+    let modify = new Modify({features: new Collection([this])});
+    map.addInteraction(modify);
+    this.modify = modify;
+
+    let translate = new Translate({features: new Collection([this])});
+    map.addInteraction(translate);
+    this.translate = translate;
+
+    return this;
   }
   xlSetPoint(point = this.xlOriItem.point) {
 		let geometry = new Polygon([point]);

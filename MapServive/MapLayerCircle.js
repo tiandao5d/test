@@ -5,6 +5,8 @@ import ol from "openlayers";
 import { pointToMap } from "./MapCommon";
 import { MapFeatureShape } from './MapLayerPolygon';
 const Circle = ol.geom.Circle;
+const Modify = ol.interaction.Modify;
+const Collection = ol.Collection;
 // 数据格式
 // [
 //   {
@@ -44,6 +46,24 @@ class MapFeatureCircle extends MapFeatureShape {
     this.xlOriItem = options.oriItem;
     this.xlSetCenter();
     this.xlSetStyle();
+    // 记录编辑数据
+    this.modify = null;
+  }
+  // 退出编辑状态
+  xlExitDraw(map) {
+    if ( this.modify ) {
+      map.removeInteraction(this.modify);
+      this.modify = null;
+    }
+  }
+  // 进入编辑状态
+  xlEnterDraw(map) {
+    this.xlExitDraw(map);
+    let modify = new Modify({features: new Collection([this])});
+    map.addInteraction(modify);
+    this.modify = modify;
+
+    return this;
   }
   xlSetCenter({center, radius} = this.xlOriItem) {
 		let geometry = new Circle(pointToMap(center), getProjectedRadius(center, radius));

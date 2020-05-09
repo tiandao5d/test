@@ -86,7 +86,7 @@ class Home extends Component {
       this.map.removeLayer(layer3);
     } else if (type === 1) {
       this.map.addLayer(layer1);
-      this.map.addLayer(layer2);
+      // this.map.addLayer(layer2);
       this.map.addLayer(layer3);
     }
   }
