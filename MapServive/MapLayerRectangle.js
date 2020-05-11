@@ -2,7 +2,7 @@
  * 矩形也是一种特别的多边形，继承自多边形的形状类
  */
 import ol from "openlayers";
-import { pointToMap } from "./MapCommon";
+import { xlRectangleToPoints } from "./MapCommon";
 import { MapFeatureShape } from './MapLayerPolygon'
 const Polygon = ol.geom.Polygon;
 const Collection = ol.Collection;
@@ -24,35 +24,19 @@ const Translate = ol.interaction.Translate;
 //   },
 // ];
 
-// 起始点左上角坐标点，宽度，高度
-function toPoints(lefttop, w, h) {
-  lefttop = pointToMap(lefttop);
-  let [x, y] = lefttop;
-  let righttop = [x + w, y];
-  let leftbottom = [x, y + h];
-  let rightbottom = [x + w, y + h];
-  return [
-    lefttop,
-    righttop,
-    rightbottom,
-    leftbottom,
-    lefttop
-  ];
-}
-
 class MapFeatureRectangle extends MapFeatureShape {
   constructor(options = {}) {
     super();
     this.xlOriItem = options.oriItem;
     this.xlSetPoint();
     this.xlSetStyle();
-    this.translate = null;
+    this._xlTranslate = null;
   }
   // 退出编辑状态
   xlExitDraw(map) {
-    if ( this.translate ) {
-      map.removeInteraction(this.translate);
-      this.translate = null;
+    if ( this._xlTranslate ) {
+      map.removeInteraction(this._xlTranslate);
+      this._xlTranslate = null;
     }
   }
   // 进入编辑状态
@@ -60,11 +44,11 @@ class MapFeatureRectangle extends MapFeatureShape {
     this.xlExitDraw(map);
     let translate = new Translate({features: new Collection([this])});
     map.addInteraction(translate);
-    this.translate = translate;
+    this._xlTranslate = translate;
     return this;
   }
   xlSetPoint({lefttop, width, height} = this.xlOriItem) {
-		let geometry = new Polygon([toPoints(lefttop, width, height)]);
+		let geometry = new Polygon([xlRectangleToPoints(lefttop, width, height)]);
     this.setGeometry(geometry);
   }
 }

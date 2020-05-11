@@ -77,30 +77,25 @@ class Home extends Component {
   }
   btnclick(type) {
     let layer1 = new MapLayerVector({
-      features
+      features: [...features, ...pfs]
     });
     let layer2 = new MapLayerHeadmap({
       features
     });
-    let layer3 = new MapLayerVector({
-      features: pfs
-    });
     if (type === 0) {
       this.map.removeLayer(layer1);
       this.map.removeLayer(layer2);
-      this.map.removeLayer(layer3);
     } else if (type === 1) {
       this.map.addLayer(layer1);
       this.map.addLayer(layer2);
-      this.map.addLayer(layer3);
       this.mapDrawCls = new MapDraw({
-        map: this.map,
-        layer: layer3
+        map: this.map
       })
       this.mapDrawCls.xlOnEnd = function(res) {
         console.log(res)
+        layer1.xlAddFeatures(res)
       }
-      this.mapDrawCls.xlEnter('rectangle')
+      this.mapDrawCls.xlEnter('circle')
     }
   }
   render() {

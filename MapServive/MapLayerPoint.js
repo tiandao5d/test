@@ -1,5 +1,5 @@
 import ol from "openlayers";
-import { jsonCopy, geometryTransformToMap } from "./MapCommon";
+import { xlJsonCopy, _xlGeometryTransformToMap } from "./MapCommon";
 const Feature = ol.Feature;
 const Point = ol.geom.Point;
 const Style = ol.style.Style;
@@ -37,46 +37,50 @@ class MapFeaturePoint extends Feature {
     this.xlSetPoint();
     this.xlSetStyle();
     // 记录编辑数据
-    this.modify = null;
+    this._xlModify = null;
   }
   // 退出编辑状态
   xlExitDraw(map) {
-    if ( this.modify ) {
-      map.removeInteraction(this.modify);
-      this.modify = null;
+    if (this._xlModify) {
+      map.removeInteraction(this._xlModify);
+      this._xlModify = null;
     }
   }
   // 进入编辑状态
   xlEnterDraw(map) {
     this.xlExitDraw(map);
-    let modify = new Modify({features: new Collection([this])});
+    let modify = new Modify({ features: new Collection([this]) });
     map.addInteraction(modify);
-    this.modify = modify;
+    this._xlModify = modify;
 
     return this;
   }
   // 进入或退出选中状态，type === false为退出选中
   xlSetSelected(type, style) {
-    if ( type === false ) { // 还原原有的样式状态
+    if (type === false) {
+      // 还原原有的样式状态
       this.xlSetStyle();
       return this;
     }
     // 选中的样式，如果给值，就是将第一个元素样式改成给的值
     // 默认是给第一个字体加一个边框
-    style = style || this.xlOriItem.selectedStyle || Object.assign({}, this.xlOriItem.style[0], {
-      stroke: {
-        color: '#000',
-        width: 5
-      }
-    })
-    let oriStyle = jsonCopy(this.xlOriItem.style);
+    style =
+      style ||
+      this.xlOriItem.selectedStyle ||
+      Object.assign({}, this.xlOriItem.style[0], {
+        stroke: {
+          color: "#000",
+          width: 5,
+        },
+      });
+    let oriStyle = xlJsonCopy(this.xlOriItem.style);
     oriStyle[0] = style;
     this.xlSetStyle(oriStyle);
     return this;
   }
   xlSetPoint(point = this.xlOriItem.point) {
     let geometry = new Point(point);
-    geometryTransformToMap(geometry);
+    _xlGeometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
   xlSetStyle(style = this.xlOriItem.style) {
@@ -84,7 +88,7 @@ class MapFeaturePoint extends Feature {
     this.setStyle(style);
   }
   xlGetOriItemCopy() {
-    return jsonCopy(this.xlOriItem);
+    return xlJsonCopy(this.xlOriItem);
   }
   xlCreateTitleStyle(title) {
     return new Style({

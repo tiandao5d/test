@@ -1,5 +1,5 @@
 import ol from "openlayers";
-import { jsonCopy, geometryTransformToMap } from "./MapCommon";
+import { xlJsonCopy, _xlGeometryTransformToMap } from "./MapCommon";
 const Feature = ol.Feature;
 const Polygon = ol.geom.Polygon;
 const Style = ol.style.Style;
@@ -77,7 +77,7 @@ class MapFeatureShape extends Feature {
     this.setStyle(style);
   }
   xlGetOriItemCopy() {
-    return jsonCopy(this.xlOriItem);
+    return xlJsonCopy(this.xlOriItem);
 	}
   xlCreateStyle(style = {}) {
     let dstyle = getShapeDefaultStyle();
@@ -99,18 +99,18 @@ class MapFeaturePolygon extends MapFeatureShape {
     this.xlSetPoint();
     this.xlSetStyle();
     // 记录编辑数据
-    this.modify = null;
-    this.translate = null;
+    this._xlModify = null;
+    this._xlTranslate = null;
   }
   // 退出编辑状态
   xlExitDraw(map) {
-    if ( this.modify ) {
-      map.removeInteraction(this.modify);
-      this.modify = null;
+    if ( this._xlModify ) {
+      map.removeInteraction(this._xlModify);
+      this._xlModify = null;
     }
-    if ( this.translate ) {
-      map.removeInteraction(this.translate);
-      this.translate = null;
+    if ( this._xlTranslate ) {
+      map.removeInteraction(this._xlTranslate);
+      this._xlTranslate = null;
     }
   }
   // 进入编辑状态
@@ -118,17 +118,17 @@ class MapFeaturePolygon extends MapFeatureShape {
     this.xlExitDraw(map);
     let modify = new Modify({features: new Collection([this])});
     map.addInteraction(modify);
-    this.modify = modify;
+    this._xlModify = modify;
 
     let translate = new Translate({features: new Collection([this])});
     map.addInteraction(translate);
-    this.translate = translate;
+    this._xlTranslate = translate;
 
     return this;
   }
   xlSetPoint(point = this.xlOriItem.point) {
 		let geometry = new Polygon([point]);
-		geometryTransformToMap(geometry);
+		_xlGeometryTransformToMap(geometry);
     this.setGeometry(geometry);
   }
 }
