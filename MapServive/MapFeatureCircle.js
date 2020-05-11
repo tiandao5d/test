@@ -3,7 +3,7 @@
  */
 import ol from "openlayers";
 import { _xlCircleToGeometry } from "./MapCommon";
-import { MapFeatureShape } from "./MapLayerPolygon";
+import { MapFeatureShape } from "./MapFeaturePolygon";
 const Circle = ol.geom.Circle;
 const Modify = ol.interaction.Modify;
 const Collection = ol.Collection;

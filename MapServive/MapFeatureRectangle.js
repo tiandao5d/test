@@ -3,7 +3,7 @@
  */
 import ol from "openlayers";
 import { xlRectangleToPoints } from "./MapCommon";
-import { MapFeatureShape } from './MapLayerPolygon'
+import { MapFeatureShape } from './MapFeaturePolygon'
 const Polygon = ol.geom.Polygon;
 const Collection = ol.Collection;
 const Translate = ol.interaction.Translate;

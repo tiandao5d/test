@@ -30,6 +30,17 @@ const Collection = ol.Collection;
 //     }
 // ]
 
+// 点的默认样式
+function getPointDefaultStyle() {
+    return [
+      {
+        color: "#f00",
+        font: "50px arial",
+        text: "\u2297",
+      },
+    ]
+}
+
 class MapFeaturePoint extends Feature {
   constructor(options = {}) {
     super();
@@ -84,6 +95,9 @@ class MapFeaturePoint extends Feature {
     this.setGeometry(geometry);
   }
   xlSetStyle(style = this.xlOriItem.style) {
+    if ( !style ) { // 如果没有style则设置一个默认的样式
+      style = this.xlOriItem.style = getPointDefaultStyle();
+    }
     style = style.map((o) => this.xlCreateStyle(o));
     this.setStyle(style);
   }

@@ -8,72 +8,121 @@
  * 如果需要用到原生方法或属性，请在这里对应的文件中加入xl前缀方法或属性
  */
 import ol from "openlayers";
-import { MapFeaturePoint } from "./MapLayerPoint";
-import { MapFeatureHeatmap } from "./MapLayerHeatmap";
-import { MapLayerBasemap, MapLayerGroup, MapLayerVector, MapLayerHeadmap } from "./MapLayerBase";
-import { MapFeaturePolygon } from "./MapLayerPolygon";
-import { MapDraw } from './MapLayerDraw';
+import { MapFeatureCircle } from "./MapFeatureCircle";
+import { MapFeaturePoint } from "./MapFeaturePoint";
+import { MapFeaturePolygon } from "./MapFeaturePolygon";
+import { MapFeatureHeatmap } from "./MapFeatureHeatmap";
+import { MapFeatureRectangle } from "./MapFeatureRectangle";
+
 import {
-  xlPointToMap,
-  xlPointFromMap,
-} from "./MapCommon";
+  MapLayerBasemap,
+  MapLayerGroup,
+  MapLayerVector,
+  MapLayerHeadmap,
+} from "./MapLayerBase";
+import { MapDraw } from "./MapLayerDraw";
+import { xlPointToMap, xlPointFromMap } from "./MapCommon";
 const Map = ol.Map;
 const View = ol.View;
 let map = null;
 
+class Mapmap extends Map {
+  constructor(options = {}) {
+    let target =
+      options.target instanceof HTMLElement
+        ? options.target
+        : document.getElementById(options.target);
+    let center = options.center || [0, 0];
+    let zoom = options.zoom || 4;
+    let layers = options.layers || [];
+    let view = new View({
+      center,
+      zoom,
+    });
+    let mapOptions = {
+      target,
+      view,
+      layers,
+    };
+    super(mapOptions);
+  }
+  xlToPoint(point) {
+    let view = this.getView();
+    view.animate({
+      center: xlPointToMap(point),
+      zoom: 3,
+    });
+  }
+  xlOn(type, fn) {
+    let mapEventType = "";
+    switch (type) {
+      case "click":
+        mapEventType = "singleclick";
+        break;
+
+      case "moveend":
+        mapEventType = "moveend";
+        break;
+    }
+    if (!mapEventType) {
+      return this;
+    }
+    let cb = null;
+    if (type === "click") {
+      cb = function(evt) {
+        let features = [];
+        this.forEachFeatureAtPixel(evt.pixel, function(ft) {
+          features.push(ft);
+        });
+        fn({
+          features,
+          point: xlPointFromMap(evt.coordinate),
+          type,
+        });
+      };
+    }
+    if ( type === 'moveend' ) {
+      cb = function() {
+        let view = this.getView();
+        let zoom = view.getZoom();
+        let center = view.getCenter();
+
+        center = xlPointFromMap(center);
+        fn({
+          zoom,
+          center,
+        });
+      };
+    }
+    this.on(mapEventType, cb);
+    return this;
+  }
+}
+
 const mapLayerBasemapCls = new MapLayerBasemap();
 
 function createMap(target) {
-  let mapStatusObj = JSON.parse(localStorage.getItem("mapStatusObj")) || 
-  {
+  let mapStatusObj = JSON.parse(localStorage.getItem("mapStatusObj")) || {
     center: [104.41, 35.82],
     zoom: 4,
   };
-  map = new Map({
+  map = new Mapmap({
     target,
     layers: [mapLayerBasemapCls],
-    view: new View({
-      center: xlPointToMap(mapStatusObj.center),
-      zoom: mapStatusObj.zoom,
-    }),
+    center: xlPointToMap(mapStatusObj.center),
+    zoom: mapStatusObj.zoom,
   });
-  map.on("moveend", function(evt) {
-    let view = map.getView();
-    let zoom = view.getZoom();
-    let center = view.getCenter();
-
-    center = xlPointFromMap(center);
+  map.xlOn("click", (e) => {
+    console.log(e);
+  });
+  map.xlOn("moveend", function(e) {
     localStorage.setItem(
       "mapStatusObj",
       JSON.stringify({
-        center,
-        zoom,
+        center: e.center,
+        zoom: e.zoom,
       })
     );
-  });
-  let selectedArr = [];
-  map.on("singleclick", function(evt) {
-    console.log(mapLayerBasemapCls.xlGetLayers());
-    selectedArr.forEach(ft => {
-      if ( ft.xlSetSelected ) {
-        ft.xlSetSelected(false);
-      }
-      if ( ft.xlExitDraw ) {
-        ft.xlExitDraw(map);
-      }
-    })
-    selectedArr = [];
-    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-      selectedArr.push(feature);
-      if ( feature.xlSetSelected ) {
-        feature.xlSetSelected();
-      }
-      if ( feature.xlEnterDraw ) {
-        feature.xlEnterDraw(map);
-      }
-      // layerTileGroupCls.group.setLayers(new Collection())
-    });
-    console.log(selectedArr);
   });
   return map;
 }
@@ -88,4 +137,6 @@ export {
   MapFeaturePoint, // 点元素设置
   MapFeatureHeatmap, // 热点图元素
   MapFeaturePolygon, // 多边形元素
+  MapFeatureCircle, // 圆
+  MapFeatureRectangle, // 矩形
 };

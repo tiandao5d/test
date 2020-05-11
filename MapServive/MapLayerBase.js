@@ -1,10 +1,10 @@
 import ol from "openlayers";
 import { xlToArray } from "./MapCommon";
-import { MapFeatureCircle } from "./MapLayerCircle";
-import { MapFeatureRectangle } from "./MapLayerRectangle";
-import { MapFeaturePoint } from "./MapLayerPoint";
-import { MapFeatureHeatmap } from "./MapLayerHeatmap";
-import { MapFeaturePolygon } from "./MapLayerPolygon";
+import { MapFeatureCircle } from "./MapFeatureCircle";
+import { MapFeatureRectangle } from "./MapFeatureRectangle";
+import { MapFeaturePoint } from "./MapFeaturePoint";
+import { MapFeatureHeatmap } from "./MapFeatureHeatmap";
+import { MapFeaturePolygon } from "./MapFeaturePolygon";
 const Collection = ol.Collection;
 const LayerGroup = ol.layer.Group;
 const Feature = ol.Feature;

@@ -113,7 +113,7 @@ class MapDraw {
   // 退出绘画状态
   xlExit() {
     if (this._xlDraw) {
-      this.map.removeInteraction(this._xlDraw);
+      this.xlMap.removeInteraction(this._xlDraw);
       this._xlDraw = null;
     }
     if (this._xlDocCb) {
@@ -121,7 +121,7 @@ class MapDraw {
       this._xlDocCb = null;
     }
     if (this._xlLayer) {
-      this.map.removeLayer(this._xlLayer);
+      this.xlMap.removeLayer(this._xlLayer);
       this._xlLayer = null;
     }
     if (typeof this.xlOnExit === "function") {

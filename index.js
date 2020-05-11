@@ -88,14 +88,6 @@ class Home extends Component {
     } else if (type === 1) {
       this.map.addLayer(layer1);
       this.map.addLayer(layer2);
-      this.mapDrawCls = new MapDraw({
-        map: this.map
-      })
-      this.mapDrawCls.xlOnEnd = function(res) {
-        console.log(res)
-        layer1.xlAddFeatures(res)
-      }
-      this.mapDrawCls.xlEnter('circle')
     }
   }
   render() {

@@ -134,4 +134,4 @@ class MapFeaturePolygon extends MapFeatureShape {
 }
 
 
-export { MapFeaturePolygon, MapFeatureShape, getShapeDefaultStyle };
+export { MapFeaturePolygon, MapFeatureShape };
